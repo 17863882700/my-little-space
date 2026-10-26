@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的小空间</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", sans-serif;
+            color: #783c59;
+            background: linear-gradient(135deg, #fff0f5, #ffd6e7, #f8c8dc);
+        }
+        header {
+            padding: 28px 20px;
+            text-align: center;
+        }
+        header h1 { margin: 0; color: #d94f91; font-size: 32px; }
+        header p { color: #a45c7d; }
+        .container {
+            max-width: 850px;
+            margin: auto;
+            padding: 12px 18px 40px;
+        }
+        .card {
+            background: rgba(255,255,255,.82);
+            border: 1px solid #ffc5df;
+            border-radius: 22px;
+            padding: 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 25px rgba(210,91,145,.10);
+        }
+        h2 { color: #d94f91; margin-top: 0; }
+        button {
+            border: 0;
+            border-radius: 12px;
+            background: #e96ca5;
+            color: white;
+            padding: 11px 18px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        button:hover { background: #d94f91; }
+        input {
+            max-width: 100%;
+            padding: 10px;
+            margin: 7px 0;
+            border: 1px solid #f2a9cb;
+            border-radius: 10px;
+            background: #fffafd;
+            color: #783c59;
+        }
+        #countdown { font-size: 23px; color: #d94f91; font-weight: bold; }
+        audio { width: 100%; margin-top: 12px; }
+        .heart { color: #ec78ac; font-size: 22px; }
+        footer { text-align: center; padding: 15px; color: #a45c7d; }
+    </style>
+</head>
+<body>
+<header>
+    <div class="heart">♡ ✿ ♡ ✿ ♡</div>
+    <h1>我的小空间</h1>
+    <p>把生活中的小美好，收藏在粉色时光里</p>
+</header>
+
+<main class="container">
+    <section class="card">
+        <h2>🎂 生日倒计时</h2>
+        <p>选择一个特别的日子，期待美好到来。</p>
+        <label>生日日期：</label><br>
+        <input type="date" id="birthday">
+        <div id="countdown">等待设置你的特别日子 ✨</div>
+    </section>
+
+    <section class="card">
+        <h2>🎵 我的音乐角落</h2>
+        <p>选择设备中的音乐文件，听一首喜欢的歌。</p>
+        <input type="file" id="musicFile" accept="audio/*">
+        <audio id="player" controls></audio>
+    </section>
+
+    <section class="card">
+        <h2>⏰ 温柔小闹钟</h2>
+        <p>设置提醒时间。请保持此网页打开，并允许浏览器播放声音。</p>
+        <input type="time" id="alarmTime">
+        <button onclick="setAlarm()">设置闹钟</button>
+        <button onclick="stopAlarm()">关闭闹钟</button>
+        <p id="alarmStatus">还没有设置闹钟。</p>
+        <audio id="alarmSound" loop
+               src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+    </section>
+</main>
+
+<footer>♡ 愿每一天都带着一点甜 ♡</footer>
+
+<script>
+    const birthday = document.getElementById("birthday");
+    const countdown = document.getElementById("countdown");
+
+    birthday.addEventListener("change", updateCountdown);
+
+    function updateCountdown() {
+        if (!birthday.value) return;
+        const now = new Date();
+        const target = new Date(birthday.value + "T00:00:00");
+        if (target < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+            target.setFullYear(now.getFullYear() + 1);
+        }
+        const days = Math.ceil((target - now) / 86400000);
+        countdown.textContent = days === 0
+            ? "今天就是特别的日子！生日快乐！🎉"
+            : `距离特别的日子还有 ${days} 天 ♡`;
+    }
+
+    document.getElementById("musicFile").addEventListener("change", function() {
+        const file = this.files[0];
+        if (file) {
+            const player = document.getElementById("player");
+            player.src = URL.createObjectURL(file);
+            player.play().catch(() => {});
+        }
+    });
+
+    let alarmTimer = null;
+
+    function setAlarm() {
+        const value = document.getElementById("alarmTime").value;
+        const status = document.getElementById("alarmStatus");
+        if (!value) {
+            status.textContent = "请先选择闹钟时间。";
+            return;
+        }
+
+        clearTimeout(alarmTimer);
+        const parts = value.split(":").map(Number);
+        const target = new Date();
+        target.setHours(parts[0], parts[1], 0, 0);
+        if (target <= new Date()) target.setDate(target.getDate() + 1);
+
+        alarmTimer = setTimeout(async () => {
+            status.textContent = "⏰ 时间到啦！";
+            const sound = document.getElementById("alarmSound");
+            try {
+                await sound.play();
+            } catch {
+                alert("闹钟时间到了！请检查浏览器的声音权限。");
+            }
+        }, target.getTime() - Date.now());
+
+        status.textContent = `已设置闹钟：${value}`;
+    }
+
+    function stopAlarm() {
+        clearTimeout(alarmTimer);
+        const sound = document.getElementById("alarmSound");
+        sound.pause();
+        sound.currentTime = 0;
+        document.getElementById("alarmStatus").textContent = "闹钟已关闭。";
+    }
+</script>
+</body>
+</html>
