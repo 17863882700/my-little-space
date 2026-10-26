@@ -1,13 +1,14 @@
+
 package com.example.demo;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@SpringBootTest
-class DemoApplicationTests {
+@RestController
+public class HelloController {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @GetMapping("/hello")
+    public String hello() {
+        return "恭喜你！Spring Boot 项目运行成功！";
+    }
 }
